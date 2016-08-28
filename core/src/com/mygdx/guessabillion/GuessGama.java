@@ -16,6 +16,9 @@ import java.util.Random;
 
 
 public class GuessGama extends ApplicationAdapter {
+    //setup global variables for the game
+    //could do not global but this seemed easier at the time
+
 	private Stage stage;
     private int randomNumber;
     private Random random;
@@ -31,17 +34,19 @@ public class GuessGama extends ApplicationAdapter {
 	
 	@Override
 	public void create () {
-        Gdx.gl.glClearColor(0.8f, 0.9f, 0.9f, 1);
+        //run at program start - initialises variables and creates the needed objects
+        Gdx.gl.glClearColor(0.8f, 0.9f, 0.9f, 1); // background color r g b a
 		stage = new Stage(new ScreenViewport());
 		Gdx.input.setInputProcessor(stage);
         random = new Random();
         randomNumber = makeRandomNumber();
         clues = 10;
-		Skin uiSkin = new Skin(Gdx.files.internal("uiskin.json"));
+        //setting up ui
+		Skin uiSkin = new Skin(Gdx.files.internal("uiskin.json")); //using default can change this to configure how ui elements look
 		Table table = new Table();
 		table.setFillParent(true);
 		stage.addActor(table);
-        /*
+        /* displays the number to guess so you can see it (cheating :P)
         numLabel = new Label(Integer.toString(randomNumber), uiSkin);
         table.add(numLabel);
         */
@@ -59,7 +64,7 @@ public class GuessGama extends ApplicationAdapter {
             }
         });
 		table.add(textButton);
-        table.row();
+        table.row(); //line break fot eh ui table
         lastGuessLabel = new Label("Last Guess: N/A - ", uiSkin);
         table.add(lastGuessLabel);
         clueLabel = new Label("???", uiSkin);
@@ -76,17 +81,19 @@ public class GuessGama extends ApplicationAdapter {
         remainingLabel = new Label(Integer.toString(clues) + " Clues Remaining", uiSkin);
         table.add(remainingLabel);
         table.row();
-        winLabel = new Label("Bananana!", uiSkin);
+        winLabel = new Label("Banana!", uiSkin);
         table.add(winLabel);
-		//table.setDebug(true);
+		//table.setDebug(true); // not sure exactly what this does
 	}
 
 	@Override
 	public void render () {
+        //if the screen doesnt have wacky animations this can be optimized so it doesn't try for 60fps
+        //right now its wasteful - but if we start adding snazz animations might need it like this
 		float delta = Gdx.graphics.getDeltaTime();
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		stage.act(delta);
-		stage.draw();
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); //clears screen so we dont draw on top of last frame
+		stage.act(delta); //updates the frame by so much time so animations know how much to animate
+		stage.draw(); //actually fraw to the screen via magic
 	}
 	
 	@Override
@@ -99,6 +106,7 @@ public class GuessGama extends ApplicationAdapter {
 		stage.getViewport().update(width, height, true);
 	}
 
+    //my code on what happens when buttons are pressed
     private void submit(int number) {
         lastGuess = number;
         lastGuessLabel.setText("Last Guess: " + Integer.toString(lastGuess) + " - ");
@@ -107,7 +115,7 @@ public class GuessGama extends ApplicationAdapter {
             winLabel.setText("WIN!");
             Gdx.gl.glClearColor(0.2f, 0.9f, 0.2f, 1);
 			randomNumber = makeRandomNumber();
-			//numLabel.setText(Integer.toString(randomNumber));
+			//numLabel.setText(Integer.toString(randomNumber)); //updates the cheating label
 		}
         else {
             winLabel.setText("LOSE!");
@@ -119,14 +127,16 @@ public class GuessGama extends ApplicationAdapter {
 		return random.nextInt(randomNumberSize) + 1;
 	}
 
+    //missing a lot of quality of life things like telling you if the clue isn't going to work etc...
     private void showClue() {
-        clues--;
-        remainingLabel.setText(Integer.toString(clues) + " Clues Remaining");
-        if (lastGuess >= randomNumber) {
-            clueLabel.setText("too high");
-        }
-        else {
-            clueLabel.setText("too low");
+        if (clues > 0) {
+            clues--;
+            remainingLabel.setText(Integer.toString(clues) + " Clues Remaining");
+            if (lastGuess >= randomNumber) {
+                clueLabel.setText("too high");
+            } else {
+                clueLabel.setText("too low");
+            }
         }
     }
 }
